@@ -1,0 +1,118 @@
+PATIENT DETAILS
+===========================
+Name: xyz
+Age: 55
+Gender: female
+Email: xyz
+Phone: +91 999
+Report Generated: 2025-10-17 23:00:15
+
+PRE-CONSULTATION SUMMARY
+===========================
+
+**PRE-CONSULTATION SUMMARY:**
+
+**Chief Complaint:**
+Intermittent chest pain/discomfort, described as pressure or tightness.
+
+**History of Presenting Illness:**
+The patient reports intermittent chest pressure or tightness that began a few weeks ago. The pain is severe, rated 7-8/10, and is consistently triggered by physical exertion (e.g., walking, climbing stairs). It is relieved by resting. Episodes typically last 16-30 minutes and are accompanied by shortness of breath, dizziness/lightheadedness, and pain radiating to the jaw and back. This symptom complex moderately impacts daily activities.
+
+**Past Medical History:**
+- Hypertension: Diagnosed approximately 5 years ago, managed with tab geminar m2 forte.
+- Diabetes (Type 1 or Type 2): Diagnosed approximately 5 years ago. Patient reports not regularly monitoring diabetes, checks blood sugar less frequently than monthly, and is not currently taking prescribed diabetes medication, though it was prescribed in the past.
+- Prior Hospitalization: History of hospitalization for medical reasons, including heart valve surgery. Specific valve involved, date of surgery, and any complications are not recalled by the patient.
+- Medications: tab geminar m2 forte (for hypertension). No other current medications reported.
+- Allergies: No known drug, food, or environmental allergies.
+
+**Family History:**
+Positive family history for Myocardial Infarction, Hypertension, and Diabetes (Type 1 or Type 2) among close blood relatives.
+
+**Lifestyle & Social History:**
+- Diet: Mixed diet including processed and whole foods, fruits, and vegetables.
+- Exercise: Engages in physical activities at least three times per week.
+- Tobacco Use: Currently smokes/vapes regularly.
+- Alcohol Use: Consumes alcohol occasionally (less than once per week).
+- Diabetes Management: Monitors blood sugar less frequently than monthly and is not currently taking prescribed diabetes medication.
+
+**Clinical Impression:**
+The patient presents with classic exertional angina symptoms (chest pressure, severe intensity, radiation, shortness of breath, dizziness, relief with rest) in the context of significant cardiovascular risk factors including hypertension, poorly controlled diabetes, current smoking/vaping, and a history of prior heart valve surgery. The unknown details of the previous valve surgery are a key area for further investigation. The constellation of symptoms and risk factors strongly suggests underlying ischemic heart disease.
+
+---
+
+
+FULL INTERVIEW TRANSCRIPT
+=========================
+
+Q: Hello, I'm Dr. [AI Cardiologist Name]. Thank you for coming in today. To start, could you please tell me what brings you to see us today? What is the main concern or symptom you'd like to discuss?
+A: Chest pain or discomfort
+
+Q: Thank you for sharing that. Chest pain or discomfort is definitely something we need to investigate thoroughly. To understand it better, could you tell me when this chest pain or discomfort first started? And how often does it occur?
+A: It started a few weeks ago.
+
+Q: Thank you for clarifying the onset. Is this chest pain or discomfort something you feel constantly throughout the day, or does it come and go (intermittent)?
+A: It comes and goes (intermittent).
+
+Q: When you experience this chest pain or discomfort, could you describe what it feels like? Is it a sharp pain, a dull ache, a pressure, a burning sensation, or something else?
+A: Pressure or tightness
+
+Q: Thank you for describing the sensation. To help me understand its intensity, on a scale of 0 to 10, with 0 being no pain and 10 being the worst pain imaginable, how would you rate the severity of this pressure or tightness when it occurs?
+A: 7-8 (Severe)
+
+Q: Thank you for rating the severity. Understanding what triggers or influences this pressure or tightness is very important. Can you tell me what seems to bring on this chest pain or discomfort? For example, does it happen with physical exertion, stress, after eating, or at rest?
+A: Physical exertion (e.g., walking, climbing stairs)
+
+Q: Thank you for explaining what brings on the pressure or tightness. Now, what, if anything, helps to relieve this chest pain or discomfort? For instance, does resting, taking a specific medication, or changing your position make it better?
+A: Resting
+
+Q: Thank you for sharing that resting helps. Given that this chest pain or discomfort occurs with physical exertion, how has it been impacting your daily life? For example, has it affected your ability to work, sleep, perform household chores, or engage in hobbies you previously enjoyed?
+A: Moderately impacts daily activities (e.g., limits some activities, causes discomfort)
+
+Q: When you experience this pressure or tightness in your chest, do you notice any other symptoms accompanying it? For example, do you experience shortness of breath, sweating, nausea, dizziness, lightheadedness, or pain radiating to your arm, jaw, or back?
+A: Shortness of breath, Dizziness or lightheadedness, Pain radiating to jaw, Pain radiating to back
+
+Q: Thank you for sharing those accompanying symptoms. When you experience an episode of this chest pressure or tightness, how long does it typically last?
+A: 16-30 minutes
+
+Q: Thank you for providing such a detailed description of your chest pain and its associated symptoms. This information is very helpful. Now, I'd like to shift our focus a bit to your overall health history. Do you have any known medical conditions, such as high blood pressure, diabetes, high cholesterol, or thyroid problems?
+A: High Blood Pressure (Hypertension), Diabetes (Type 1 or Type 2)
+
+Q: Thank you for letting me know about your high blood pressure and diabetes. Could you tell me when you were first diagnosed with each of these conditions? Also, how are they currently being managed? For example, are you taking any medications for them, and if so, which ones?
+A: tab geminar m2 forte
+
+Q: Thank you for mentioning tab geminar m2 forte. To ensure we have a complete picture, could you please list all medications you are currently taking, including any over-the-counter drugs, supplements, or herbal remedies, in addition to what you've already mentioned? Also, do you have any known allergies to medications, foods, or anything else?
+A: no other medicines 
+
+Q: Thank you for confirming your current medications and allergies. Now, moving on to your past medical history, have you ever had any surgeries or been hospitalized for any reason in the past?
+A: Yes, I've been hospitalized for medical reasons.
+
+Q: Thank you for letting me know about your hospitalization. To help me understand your full medical history, could you please tell me what medical reasons led to your hospitalization, and approximately when did this occur?
+A: heart valve surgery
+
+Q: Thank you for letting me know about the heart valve surgery. This is very important information. Could you please tell me which heart valve was involved in the surgery, approximately when it took place, and if there were any complications or ongoing issues related to that surgery?
+A: I didn't remember
+
+Q: Thank you for trying to recall the details of your heart valve surgery. It's understandable if some specifics are hard to remember. This information is still valuable. Now, I'd like to ask about your family's medical history, specifically regarding heart conditions. Have any of your close blood relatives – such as your parents, siblings, or children – ever been diagnosed with any of the following? (Select all that apply)
+A: Heart Attack (Myocardial Infarction), High Blood Pressure (Hypertension), Diabetes (Type 1 or Type 2)
+
+Q: Thank you for mentioning tab geminar m2 forte. To clarify, which of your conditions—high blood pressure or diabetes—is this medication prescribed for? And for the other condition, are you taking any different medications or managing it in another way? Also, could you please tell me approximately when you were diagnosed with high blood pressure and when you were diagnosed with diabetes?
+A: tab geminar m2 forte for blood pressure
+
+Q: Thank you for providing such a comprehensive overview of your medical and family history. This information is incredibly valuable. Now, I'd like to shift our focus to your daily habits, as they play a significant role in heart health. Could you tell me about your typical diet? For example, how often do you consume fruits, vegetables, whole grains, lean proteins, and processed foods? And what about your exercise routine? How often do you engage in physical activity, and what type of activities do you typically do?
+A: I engage in physical activities every week atleast three times, and food is mixture of processed and whole foods , including fruits and vegetables
+
+Q: Thank you for sharing details about your diet and exercise. That's helpful for understanding your lifestyle. Before we delve deeper into lifestyle factors, I'd like to circle back briefly to your medical history, as there were a couple of points we didn't fully cover. Regarding your diabetes, since you mentioned you're not taking other medications, could you please tell me how it is currently being managed? For example, are you managing it through diet, exercise, or other means? Also, it would be very helpful to know approximately when you were diagnosed with high blood pressure and when you were diagnosed with diabetes.
+A: I don't look over my diabetes regularly , and regarding my high blood pressure and diabetes, I was diagnosed with these problems around 5 years ago 
+
+Q: Thank you for clarifying the diagnosis timeline and your current approach to diabetes. It's crucial for us to understand how your diabetes is being managed, especially since you mentioned you don't look over it regularly. Could you please elaborate on what this means for you? For example, are you monitoring your blood sugar levels at home, following a specific diet plan, or are there other strategies you're using to manage your diabetes?
+A: I monitor my blood sugar levels occasionally, but not consistently.
+
+Q: Thank you for clarifying that you monitor your blood sugar levels occasionally. To understand this better, could you tell me approximately how often you check your blood sugar? For instance, is it daily, weekly, monthly, or less frequently? Also, have you ever been prescribed any medications specifically for your diabetes, even if you're not currently taking them? And to ensure we have a complete record, do you have any known allergies to medications, foods, or anything else?
+A: I check my blood sugar less frequently than monthly., Yes, I have been prescribed diabetes medication in the past, but I'm not currently taking it., No, I do not have any known allergies.
+
+Q: Thank you for clarifying your blood sugar monitoring and past diabetes medication, as well as confirming no known allergies. Now, let's continue with your lifestyle habits. Could you please tell me about your smoking history? Have you ever smoked cigarettes, cigars, or used any other tobacco products, including vaping? If so, when did you start, and how much do you currently use or have you used in the past?
+A: I currently smoke/vape regularly.
+
+Q: Thank you for sharing your smoking history. Now, let's discuss alcohol consumption. Do you consume alcoholic beverages? If so, how often do you drink, and approximately how many drinks do you typically have on those occasions?
+A: I drink occasionally (e.g., less than once a week).
+

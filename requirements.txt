@@ -1,0 +1,16 @@
+# Web Scraping
+requests
+beautifulsoup4
+lxml
+PyPDF2
+pdfplumber
+
+# Core AI & Vector Database
+langchain
+langchain-community
+langchain-google-genai
+chromadb
+
+# Web Application & Tunneling
+streamlit
+pyngrok
