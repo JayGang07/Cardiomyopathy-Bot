@@ -8,7 +8,7 @@ import math
 from datetime import datetime
 from langchain_google_genai import ChatGoogleGenerativeAI
 from langchain_classic.chains import LLMChain, ConversationChain
-from langchain.prompts import PromptTemplate
+from langchain_core.prompts import PromptTemplate
 from langchain_core.messages import HumanMessage, AIMessage
 from langchain.memory import ConversationBufferMemory
 from langchain_core.chat_history import BaseChatMessageHistory
