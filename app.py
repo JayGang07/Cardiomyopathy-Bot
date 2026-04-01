@@ -5,33 +5,26 @@ import json
 import asyncio
 import re
 import math
+import random
 from datetime import datetime
 from langchain_google_genai import ChatGoogleGenerativeAI
 from langchain_classic.chains import LLMChain, ConversationChain
 from langchain_core.prompts import PromptTemplate
 from langchain_core.messages import HumanMessage, AIMessage
-from langchain_community.memory import ConversationBufferMemory
+from langchain.memory import ConversationBufferMemory
 from langchain_core.chat_history import BaseChatMessageHistory
-# Add this with your other imports
 from google.api_core.exceptions import ResourceExhausted
+
 # --- App Configuration ---
 st.set_page_config(page_title="Cardiomyopathy Assistant", layout="centered")
 
 # --- API KEY CONFIGURATION ---
-# IMPORTANT: Ensure your API key is active.
-#os.environ["GOOGLE_API_KEY"] = "AIzaSyCM4-BbwIOdv_jJitFhqovMJ6mZ-RBWsFw"
-import random
-
-# --- API KEY CONFIGURATION ---
-
-# POOL 1: For Patient Educator & HCM Calculator (Lighter usage)
 # POOL 1: For Patient Educator & HCM Calculator (Lighter usage)
 EDUCATOR_HCM_KEYS = st.secrets["EDUCATOR_HCM_KEYS"]
 
 # POOL 2: For Symptom Analyzer (Heavy usage - add more keys here)
 ANALYZER_KEYS = st.secrets["ANALYZER_KEYS"]
 
-#C:\Users\jayku\Downloads\Cardiomyopathy_bot\app.py
 def get_api_key(service_type):
     """
     Returns a random key from the requested pool to distribute load.
@@ -41,6 +34,7 @@ def get_api_key(service_type):
         return random.choice(ANALYZER_KEYS)
     else:
         return random.choice(EDUCATOR_HCM_KEYS)
+
 # --- Mobile-Friendly UI CSS ---
 st.markdown("""
 <style>
@@ -55,7 +49,6 @@ st.markdown("""
 
 
 # --- SHARED HELPER CLASSES AND FUNCTIONS ---
-# --- ADD THIS FUNCTION TO SHARED HELPER CLASSES ---
 
 def execute_with_retry(chain, inputs, service_type):
     """
@@ -92,9 +85,11 @@ def execute_with_retry(chain, inputs, service_type):
                 new_key = random.choice(available_keys)
                 
                 # 2. Re-initialize the LLM with the new key
-                # We recreate the object to ensure the client resets completely
+                # Safely get the model name
+                model_val = getattr(chain.llm, 'model', 'gemini-1.5-flash')
+                
                 chain.llm = ChatGoogleGenerativeAI(
-                    model=chain.llm.model_name,
+                    model=model_val,
                     temperature=chain.llm.temperature,
                     google_api_key=new_key
                 )
@@ -105,6 +100,7 @@ def execute_with_retry(chain, inputs, service_type):
             else:
                 # If it's a different error (like a logic bug) or we ran out of keys, crash.
                 raise e
+
 class InMemoryChatHistory(BaseChatMessageHistory):
     def __init__(self): self.messages = []
     def add_message(self, message): self.messages.append(message)
@@ -195,13 +191,8 @@ def render_patient_educator():
         with st.chat_message("user"):
             st.markdown(prompt)
         
-        # --- FIND THIS SECTION IN render_patient_educator ---
         with st.spinner("Thinking..."):
-            # OLD LINE: response = st.session_state.educator_chain.predict(input=prompt)
-            
-            # NEW REPLACEMENT LINE:
             response = execute_with_retry(st.session_state.educator_chain, prompt, 'basic')
-            
             st.session_state.home_messages.append({"role": "assistant", "content": response})
             st.rerun()
 
@@ -212,7 +203,6 @@ class SymptomAnalyzerLogic:
         try:
             asyncio.set_event_loop(asyncio.new_event_loop())
         except RuntimeError: pass
-        #self.llm = ChatGoogleGenerativeAI(model="gemini-2.5-flash", temperature=0.3) # Lower temp for strict logic
         self.medical_data = load_medical_data()
     
     def _get_llm(self):
@@ -220,15 +210,13 @@ class SymptomAnalyzerLogic:
         return ChatGoogleGenerativeAI(
             model="gemini-2.5-flash", 
             temperature=0.3,
-            google_api_key=get_api_key('analyzer') # <--- UPDATED: USES POOL 2
+            google_api_key=get_api_key('analyzer') 
         )
 
     def get_next_interaction(self, transcript: str) -> dict:
         # Prepare context from JSON
         medical_context_str = json.dumps(self.medical_data, indent=2) if self.medical_data else "Focus on Cardiomyopathy symptoms."
 
-        # FIX: JSON examples now use double curly braces {{ }} to escape them. 
-        # Actual variables {medical_context} and {transcript} keep single braces.
         template = """System: You are an AI Cardiologist specialized in CARDIOMYOPATHY. 
         Your job is to conduct a **highly structured, non-repetitive, deep clinical interview** and always return the next **single multiple-choice question** in strict JSON.
 
@@ -264,13 +252,13 @@ class SymptomAnalyzerLogic:
         3. **ALL QUESTIONS MUST BE MULTI-CHOICE**, always including **"Other"** for custom responses.
         4. If the patient answers a topic, ask the **next deeper sub-question**.
         Examples:
-        - If “Yes, I smoke” → ask:  
-            “How often do you smoke?” → ["Daily", "Weekly", "Occasionally", "Used to but quit", "Other"]
-        - If they report chest pain → ask deeper:  
-            “What activities trigger the pain?”
+        - If "Yes, I smoke" -> ask:  
+            "How often do you smoke?" -> ["Daily", "Weekly", "Occasionally", "Used to but quit", "Other"]
+        - If they report chest pain -> ask deeper:  
+            "What activities trigger the pain?"
         5. If answer is vague, ask a **clarification question**, still multi-choice.
         6. Cover **every protocol topic in detail**, with layered depth.
-        7. When ALL topics have been thoroughly explored → return:
+        7. When ALL topics have been thoroughly explored -> return:
         {{ "question": "INTERVIEW_COMPLETE", "type": "done" }}
         8. No commentary—ONLY return a JSON object.
 
@@ -301,7 +289,7 @@ class SymptomAnalyzerLogic:
             try:
                 result = execute_with_retry(chain, {'transcript': transcript}, 'analyzer')
                 response_text = result['text']
-                # Clean up potential markdown formatting from LLM (Gemini often adds ```json)
+                # Clean up potential markdown formatting from LLM
                 clean_text = response_text.replace("```json", "").replace("```", "").strip()
                 data = json.loads(clean_text)
                 
@@ -375,7 +363,7 @@ def render_symptom_analyzer():
         "+691 (Micronesia)", "+373 (Moldova)", "+377 (Monaco)", "+976 (Mongolia)", "+382 ( Montenegro)", "+1-664 (Montserrat)", "+212 (Morocco)", "+258 (Mozambique)",
         "+95 (Myanmar)", "+264 (Namibia)", "+674 (Nauru)", "+977 (Nepal)", "+31 (Netherlands)", "+599 (Netherlands Antilles)", "+687 (New Caledonia)", "+64 (New Zealand)",
         "+505 (Nicaragua)", "+227 (Niger)", "+234 (Nigeria)", "+683 (Niue)", "+850 (North Korea)", "+1-670 (Northern Mariana Islands)", "+47 (Norway)", "+968 (Oman)",
-        "+92 (Pakistan)", "+680 (Palau)", "+970 (Palestine)", "+507 (Panama)", "+675 (Papua New Guinea)", "+595 (Paraguay)", "+51 (Peru)", "+63 (Philippines)",
+        "+92 (Pakistan)", "+680 (Palau)", "+970 (Palestine)", "+507 (Panama)", "+675 (Papua Guinea)", "+595 (Paraguay)", "+51 (Peru)", "+63 (Philippines)",
         "+48 (Poland)", "+351 (Portugal)", "+1-787 (Puerto Rico)", "+974 (Qatar)", "+242 (Republic of the Congo)", "+262 (Reunion)", "+40 (Romania)", "+7 (Russia)",
         "+250 (Rwanda)", "+590 (Saint Barthelemy)", "+290 (Saint Helena)", "+1-869 (Saint Kitts and Nevis)", "+1-758 (Saint Lucia)", "+508 (Saint Pierre and Miquelon)",
         "+1-784 (Saint Vincent and the Grenadines)", "+685 (Samoa)", "+378 (San Marino)", "+239 (Sao Tome and Principe)", "+966 (Saudi Arabia)", "+221 (Senegal)",
@@ -403,7 +391,7 @@ def render_symptom_analyzer():
     def process_user_response(question, answer):
         analyzer_state["messages"].append({"role": "user", "content": answer})
         analyzer_state["context"]["transcript"] += f"Q: {question}\nA: {answer}\n\n"
-        analyzer_state["current_interaction_data"] = None # Clear old question to trigger generation of next
+        analyzer_state["current_interaction_data"] = None 
         analyzer_state["stage"] = 'IN_ANALYSIS'
         st.rerun()
 
@@ -535,7 +523,6 @@ Report Generated: {generation_date}
             question = interaction_data["question"]
             
             with st.form(key=f"form_{len(analyzer_state['messages'])}"):
-                # st.write(question) # Redundant, already shown in chat history above
                 
                 if q_type == "single_choice":
                     options = interaction_data.get("options", [])
@@ -623,13 +610,13 @@ def generate_hcm_summary(patient_data: dict, _llm) -> str:
     Based on the information provided, here is a summary of the 5-year risk assessment for sudden cardiac death (SCD) in Hypertrophic Cardiomyopathy (HCM).
 
     **Key Factors Considered:**
-    *   Age: {age}
-    *   Maximal wall thickness: {thickness} mm
-    *   Left atrial diameter: {la_diam} mm
-    *   LVOT obstruction: {max_lvot} mmHg
-    *   Family history of SCD: {fam_history_str}
-    *   Episodes of NSVT: {nsvt_str}
-    *   History of syncope: {syncope_str}
+    * Age: {age}
+    * Maximal wall thickness: {thickness} mm
+    * Left atrial diameter: {la_diam} mm
+    * LVOT obstruction: {max_lvot} mmHg
+    * Family history of SCD: {fam_history_str}
+    * Episodes of NSVT: {nsvt_str}
+    * History of syncope: {syncope_str}
 
     **Result:**
     The estimated 5-year risk of SCD is **{risk_percentage:.1f}%** ({risk_category}).
