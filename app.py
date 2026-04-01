@@ -10,7 +10,7 @@ from langchain_google_genai import ChatGoogleGenerativeAI
 from langchain_classic.chains import LLMChain, ConversationChain
 from langchain_core.prompts import PromptTemplate
 from langchain_core.messages import HumanMessage, AIMessage
-from langchain.memory import ConversationBufferMemory
+from langchain_community.memory import ConversationBufferMemory
 from langchain_core.chat_history import BaseChatMessageHistory
 # Add this with your other imports
 from google.api_core.exceptions import ResourceExhausted
