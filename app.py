@@ -8,11 +8,8 @@ import math
 import random
 from datetime import datetime
 from langchain_google_genai import ChatGoogleGenerativeAI
-from langchain_classic.chains import LLMChain, ConversationChain
+from langchain_classic.chains import LLMChain
 from langchain_core.prompts import PromptTemplate
-from langchain_core.messages import HumanMessage, AIMessage
-from langchain.memory import ConversationBufferMemory
-from langchain_core.chat_history import BaseChatMessageHistory
 from google.api_core.exceptions import ResourceExhausted
 
 # --- App Configuration ---
@@ -54,38 +51,24 @@ def execute_with_retry(chain, inputs, service_type):
     """
     Executes a chain. If a Quota Error occurs, it picks a new key and retries.
     """
-    # Select the correct key pool
     pool = ANALYZER_KEYS if service_type == 'analyzer' else EDUCATOR_HCM_KEYS
-    
-    # Try as many times as we have keys + 1 buffer
     max_retries = len(pool) + 1
     current_key = chain.llm.google_api_key
     
     for attempt in range(max_retries):
         try:
-            # Attempt to run the chain based on its type
-            if isinstance(chain, ConversationChain):
-                # ConversationChain usually takes a string input for 'input'
-                if isinstance(inputs, str):
-                    return chain.predict(input=inputs)
-                return chain.predict(**inputs)
-            else:
-                # Standard LLMChain uses invoke
-                return chain.invoke(inputs)
+            # Simplified: Since we removed ConversationChain, all chains use standard invoke
+            return chain.invoke(inputs)
                 
         except Exception as e:
-            # Check if the error is a Quota/Limit error
             error_str = str(e)
             is_quota_error = "429" in error_str or "ResourceExhausted" in error_str or "quota" in error_str.lower()
             
             if is_quota_error and attempt < max_retries - 1:
-                # 1. Pick a new key that is NOT the current failed key
                 available_keys = [k for k in pool if k != current_key]
-                if not available_keys: available_keys = pool # Fallback if only 1 key exists
+                if not available_keys: available_keys = pool 
                 new_key = random.choice(available_keys)
                 
-                # 2. Re-initialize the LLM with the new key
-                # Safely get the model name
                 model_val = getattr(chain.llm, 'model', 'gemini-1.5-flash')
                 
                 chain.llm = ChatGoogleGenerativeAI(
@@ -94,19 +77,10 @@ def execute_with_retry(chain, inputs, service_type):
                     google_api_key=new_key
                 )
                 
-                # 3. Update tracker and loop again
                 current_key = new_key
                 continue 
             else:
-                # If it's a different error (like a logic bug) or we ran out of keys, crash.
                 raise e
-
-class InMemoryChatHistory(BaseChatMessageHistory):
-    def __init__(self): self.messages = []
-    def add_message(self, message): self.messages.append(message)
-    def add_user_message(self, message: str): self.add_message(HumanMessage(content=message))
-    def add_ai_message(self, message: str): self.add_message(AIMessage(content=message))
-    def clear(self): self.messages = []
 
 @st.cache_data
 def load_medical_data():
@@ -131,9 +105,7 @@ def setup_educator_chain():
             google_api_key=get_api_key('basic')
         )
     
-    # Load medical data to inject into context
     medical_data = load_medical_data()
-    # Format data as a string for the prompt, or use a default if empty
     medical_context = json.dumps(medical_data, indent=2) if medical_data else "No specific external data found. Use general medical knowledge about Cardiomyopathy."
 
     prompt_template = """System: You are a specialized cardiomyopathy educator providing evidence-based information.
@@ -167,9 +139,8 @@ def setup_educator_chain():
         template=prompt_template
     )
     
-    # Use ConversationChain with ConversationBufferMemory
-    memory = ConversationBufferMemory(memory_key="history")
-    chain = ConversationChain(llm=llm, prompt=prompt, memory=memory, verbose=False)
+    # We bypass LangChain memory completely and just use a standard LLMChain
+    chain = LLMChain(llm=llm, prompt=prompt)
     return chain
 
 def render_patient_educator():
@@ -187,12 +158,23 @@ def render_patient_educator():
             st.markdown(message["content"])
 
     if prompt := st.chat_input("Ask a general question..."):
+        # 1. Build the history string directly from Streamlit's built-in memory
+        history_str = ""
+        for msg in st.session_state.home_messages:
+            role = "Patient" if msg["role"] == "user" else "Educator"
+            history_str += f"{role}: {msg['content']}\n"
+
+        # 2. Add the new user message to the UI
         st.session_state.home_messages.append({"role": "user", "content": prompt})
         with st.chat_message("user"):
             st.markdown(prompt)
         
+        # 3. Generate response using our manual history string
         with st.spinner("Thinking..."):
-            response = execute_with_retry(st.session_state.educator_chain, prompt, 'basic')
+            inputs = {"history": history_str, "input": prompt}
+            response_data = execute_with_retry(st.session_state.educator_chain, inputs, 'basic')
+            response = response_data['text']
+            
             st.session_state.home_messages.append({"role": "assistant", "content": response})
             st.rerun()
 
@@ -206,7 +188,6 @@ class SymptomAnalyzerLogic:
         self.medical_data = load_medical_data()
     
     def _get_llm(self):
-        """Helper to get a fresh LLM instance with a random key from the ANALYZER pool."""
         return ChatGoogleGenerativeAI(
             model="gemini-2.5-flash", 
             temperature=0.3,
@@ -214,7 +195,6 @@ class SymptomAnalyzerLogic:
         )
 
     def get_next_interaction(self, transcript: str) -> dict:
-        # Prepare context from JSON
         medical_context_str = json.dumps(self.medical_data, indent=2) if self.medical_data else "Focus on Cardiomyopathy symptoms."
 
         template = """System: You are an AI Cardiologist specialized in CARDIOMYOPATHY. 
@@ -285,11 +265,10 @@ class SymptomAnalyzerLogic:
         
         chain = LLMChain(llm=self._get_llm(), prompt=prompt)
         
-        for _ in range(3): # Retry loop for robustness
+        for _ in range(3): 
             try:
                 result = execute_with_retry(chain, {'transcript': transcript}, 'analyzer')
                 response_text = result['text']
-                # Clean up potential markdown formatting from LLM
                 clean_text = response_text.replace("```json", "").replace("```", "").strip()
                 data = json.loads(clean_text)
                 
@@ -298,7 +277,6 @@ class SymptomAnalyzerLogic:
             except (json.JSONDecodeError, KeyError, AttributeError):
                 continue
         
-        # Fallback safe question
         return {"question": "Could you please describe your symptoms in more detail?", "type": "text"}
     
     def generate_summary(self, age: str, gender: str, transcript: str) -> str:
@@ -445,7 +423,6 @@ Report Generated: {generation_date}
 
     # 3. Main Analysis Loop (Demographics OR Symptom Analysis)
     else:
-        # A. Analysis Phase - Generate Next Question
         if not analyzer_state["current_interaction_data"] and current_stage == 'IN_ANALYSIS':
             with st.spinner("Thinking..."):
                 interaction_data = analyzer_state["logic"].get_next_interaction(transcript=analyzer_state["context"]["transcript"])
@@ -459,14 +436,12 @@ Report Generated: {generation_date}
 
         interaction_data = analyzer_state.get("current_interaction_data")
 
-        # End Interview Button (always visible during analysis)
         if current_stage != 'DEMOGRAPHICS':
             if st.button("End Interview & Generate Summary", type="primary"):
                 analyzer_state["stage"] = 'SUMMARY'
                 analyzer_state["current_interaction_data"] = None 
                 st.rerun()
 
-        # B. Demographics Phase
         if current_stage == 'DEMOGRAPHICS':
             step = analyzer_state["demographics_step"]
             if step in ['NAME', 'AGE', 'GENDER', 'EMAIL']:
@@ -517,13 +492,11 @@ Report Generated: {generation_date}
                             analyzer_state["stage"] = 'IN_ANALYSIS'
                             st.rerun()
 
-        # C. Render Dynamic Question Form (Single/Multi/Text)
         elif current_stage == 'IN_ANALYSIS' and interaction_data:
             q_type = interaction_data.get("type")
             question = interaction_data["question"]
             
             with st.form(key=f"form_{len(analyzer_state['messages'])}"):
-                
                 if q_type == "single_choice":
                     options = interaction_data.get("options", [])
                     answer = st.radio("Select one option:", options, label_visibility="collapsed", index=None)
@@ -558,14 +531,13 @@ Report Generated: {generation_date}
                         else:
                             st.warning("Please make at least one selection.")
                             
-                else: # Text/Default
+                else: 
                     answer = st.text_input("Your answer:")
                     if st.form_submit_button("Submit"):
                         if answer:
                             process_user_response(question, answer)
                             st.rerun()
 
-        # D. Handling "Other" Input
         elif current_stage == 'OTHER_INPUT':
             question_for_other = analyzer_state["context"].get("current_other_question", "the previous question")
             st.info(f"Please provide more details for: **{question_for_other}**")
@@ -654,7 +626,6 @@ def render_hcm_calculator():
         submit_button = st.form_submit_button(label='Calculate Risk & Generate Report', use_container_width=True)
     
     if submit_button:
-        # HCM Risk-SCD Formula (2014 ESC Guidelines)
         prognostic_index = ((0.15939858*thickness)-(0.00294271*(thickness**2))+(0.0259082*la_diam)+(0.00446131*max_lvot)+(0.4583082*fam_history)+(0.82639195*nsvt)+(0.71650361*syncope)-(0.01799934*age))
         risk_score = (1 - (0.998 ** math.exp(prognostic_index))) * 100
         
