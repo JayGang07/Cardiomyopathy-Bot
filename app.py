@@ -10,7 +10,6 @@ from datetime import datetime
 from langchain_google_genai import ChatGoogleGenerativeAI
 from langchain_classic.chains import LLMChain
 from langchain_core.prompts import PromptTemplate
-from google.api_core.exceptions import ResourceExhausted
 
 # --- App Configuration ---
 st.set_page_config(page_title="Cardiomyopathy Assistant", layout="centered")
